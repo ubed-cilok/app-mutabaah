@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Mutabaah Santri</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a8f5a">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    /* CSS RESET & STYLES (Sama persis dengan versi asli) */
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; padding: 0; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f0f4f0; font-size: 16px; line-height: 1.5; }
+    body { padding: 10px; }
+    h3 { background: #0a8f5a; color: #fff; padding: 15px; border-radius: 10px; font-size: 18px; text-align: center; margin: 10px 0 20px 0; font-weight: 700; }
+    .back-btn { display: inline-flex; align-items: center; gap: 8px; background: #6c757d; color: #fff; border: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-bottom: 15px; cursor: pointer; }
+    .form-container { width: 100%; background: #fff; border-radius: 12px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+    .form-grid { display: block !important; width: 100%; }
+    .form-column { width: 100%; display: block; margin-bottom: 20px; }
+    .section-title { font-size: 14px; font-weight: 800; color: #0a8f5a; margin: 20px 0 10px 0; padding-bottom: 8px; border-bottom: 3px solid #0a8f5a; text-transform: uppercase; }
+    input, select { width: 100%; height: 54px; padding: 0 16px; margin-bottom: 12px; border-radius: 10px; border: 2px solid #e0e0e0; background: #fff; font-size: 16px; color: #333; -webkit-appearance: none; appearance: none; }
+    input:focus, select:focus { border-color: #0a8f5a; outline: none; box-shadow: 0 0 0 4px rgba(10, 143, 90, 0.15); }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 24px; padding-right: 45px; }
+    input[readonly] { background: #f5f5f5 !important; color: #666; }
+    .input-row { display: flex; gap: 10px; width: 100%; }
+    .input-row > * { flex: 1; }
+    .input-hint { font-size: 13px; color: #666; margin: -8px 0 15px 0; font-style: italic; }
+    button.btn { width: 100%; height: 56px; border-radius: 12px; border: none; background: #0a8f5a; color: #fff; font-size: 17px; font-weight: 700; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 15px rgba(10, 143, 90, 0.3); }
+    .menu-page { padding: 10px; }
+    .menu-title { text-align: center; color: #0d4d33; font-size: 22px; font-weight: 800; margin: 20px 0; }
+    .menu-card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .menu-btn { width: 100%; height: 60px; border-radius: 12px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 12px; color: #fff; }
+    .menu-btn-primary { background: linear-gradient(135deg, #0a8f5a, #0d6efd); }
+    .menu-btn-secondary { background: linear-gradient(135deg, #6c757d, #495057); }
+    .stats-card { background: linear-gradient(135deg, #0a8f5a, #0d6efd); color: #fff; border-radius: 12px; padding: 20px; text-align: center; }
+    .stats-number { font-size: 32px; font-weight: 800; margin-bottom: 5px; }
+    #dashboardPage { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+    #dashboardPage img { width: 180px; margin-bottom: 20px; }
+    #dashboardPage h2 { color: #0d4d33; font-size: 24px; margin-bottom: 10px; font-weight: 800; }
+    .dashboard-box { background: #f0f9f4; border: 2px solid #d1e7dd; border-radius: 16px; padding: 25px; margin: 20px 0; }
+    .filter-container { background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+    .filter-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
+    .filter-group label { display: block; font-size: 13px; font-weight: 700; color: #555; margin-bottom: 6px; text-transform: uppercase; }
+    .filter-actions { display: flex; flex-direction: column; gap: 10px; }
+    .btn-filter, .btn-reset, .btn-download, .btn-pdf { width: 100%; height: 48px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; color: #fff; }
+    .btn-filter { background: #0a8f5a; } .btn-reset { background: #6c757d; } .btn-download { background: #28a745; } .btn-pdf { background: #dc3545; }
+    .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+    .stats-container .stats-card { padding: 15px 5px; }
+    .stats-container .stats-number { font-size: 20px; }
+    .stats-container .stats-label { font-size: 10px; }
+    .table-wrapper { overflow-x: auto; border-radius: 12px; background: #fff; }
+    table { display: none; }
+    #mobileList { display: block; padding: 10px; }
+    .data-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #0a8f5a; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed #ddd; }
+    .nama-santri { font-weight: 700; font-size: 17px; color: #0d4d33; }
+    .nilai-badge { background: linear-gradient(135deg, #0a8f5a, #28a745); color: #fff; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 14px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .info-item { display: flex; flex-direction: column; }
+    .info-label { font-size: 11px; color: #888; text-transform: uppercase; }
+    .info-value { font-size: 14px; color: #333; font-weight: 600; }
+    .ayat-section { background: #f0f9f4; padding: 12px; border-radius: 8px; margin: 12px 0; text-align: center; }
+    .ayat-title { font-size: 12px; color: #0a8f5a; font-weight: 700; }
+    .ayat-value { font-size: 15px; color: #333; font-weight: 700; }
+    .card-actions { display: flex; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+    .btn-action { flex: 1; height: 44px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-edit { background: #fff3cd; color: #856404; }
+    .btn-delete { background: #f8d7da; color: #721c24; }
+    #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #0a8f5a; color: #fff; padding: 16px 28px; border-radius: 30px; font-size: 15px; font-weight: 600; z-index: 9999; display: none; }
+    #loading { position: fixed; inset: 0; background: rgba(255,255,255,0.95); display: none; align-items: center; justify-content: center; z-index: 9998; }
+    .loading-content { background: #fff; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); text-align: center; font-size: 18px; color: #0a8f5a; font-weight: 700; }
+    
+    /* PDF MODAL */
+    .pdf-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow: auto; }
+    .pdf-modal-content { background: #fff; margin: 10% auto; padding: 20px; border-radius: 12px; width: 95%; max-height: 80vh; overflow-y: auto; }
+    .pdf-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #0a8f5a; }
+    .pdf-title { font-size: 18px; font-weight: 700; color: #0d4d33; }
+    .pdf-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .pdf-table th { background: #0a8f5a; color: #fff; padding: 8px; border: 1px solid #0a8f5a; }
+    .pdf-table td { padding: 6px; border: 1px solid #ddd; text-align: center; }
+    .pdf-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+    .pdf-close, .pdf-download { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: #fff; }
+    .pdf-close { background: #6c757d; } .pdf-download { background: #dc3545; }
+    
+    @media screen and (min-width: 769px) {
+      body { padding: 20px; }
+      .form-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 30px; }
+      table { display: table; width: 100%; min-width: 900px; border-collapse: collapse; font-size: 13px; }
+      th, td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; }
+      th { background: #0a8f5a; color: #fff; font-weight: 600; }
+      #mobileList { display: none !important; }
+      .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+      .filter-actions { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+      .btn-filter, .btn-reset, .btn-download, .btn-pdf { width: auto; padding: 0 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="dashboardPage">
+  <div>
+
+    <h2>MUTABAAH DIGITAL PRO</h2>
+    <p>Aplikasi Manajemen Setoran Hafalan Al-Qur'an Digital</p>
+    <div class="dashboard-box">
+      <h3 style="background: none; color: #0a8f5a; margin: 0 0 10px 0; padding: 0; font-size: 18px;">Dashboard Utama</h3>
+      <p style="color: #444; font-size: 13px; line-height: 1.6; margin-bottom: 20px;">Kelola data hafalan santri dengan mudah, cepat, dan aman secara offline.</p>
+      <button class="btn" onclick="bukaMenu()" style="margin-top: 0; height: 50px; font-size: 16px;">BUKA APLIKASI 🚀</button>
+    </div>
+	
+    <div style="font-size: 12px; color: #888;">© 2024 Mutabaah Digital Pro PWA</div>
+  </div>
+</div>
+
+<div id="menuPage" style="display: none;" class="menu-page">
+  <button class="back-btn" onclick="kembaliKeDashboard()"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+  <div class="menu-title"><i class="fa-solid fa-book-open" style="color: #0a8f5a; font-size: 36px; margin-bottom: 10px; display: block;"></i> Pilih Menu</div>
+  <div class="menu-card">
+    <button class="menu-btn menu-btn-primary" onclick="bukaInputForm()"><i class="fa-solid fa-pen-to-square" style="font-size: 24px;"></i><span>INPUT SETORAN BARU</span></button>
+    <button class="menu-btn menu-btn-secondary" onclick="bukaRekap()"><i class="fa-solid fa-table-list" style="font-size: 24px;"></i><span>LIHAT REKAP DATA</span></button>
+  </div>
+  <div class="stats-card">
+    <div class="stats-number" id="totalSetoran">0</div>
+    <div class="stats-label">Total Setoran Tercatat</div>
+  </div>
+</div>
+
+<div id="mainAppPage" style="display: none;">
+  <button class="back-btn" onclick="kembaliKeMenu()"><i class="fa-solid fa-arrow-left"></i> Kembali ke Menu</button>
+  <h3>📘 Input Setoran</h3>
+  <div class="form-container">
+    <div class="form-grid">
+      <div class="form-column">
+        <div class="section-title">👤 Identitas Santri</div>
+        
+        <input type="text" id="nama" list="list-nama" placeholder="Ketik atau pilih nama santri" autocomplete="off">
+        <datalist id="list-nama"></datalist>
+        
+        <input type="text" id="kelompok" list="list-kelompok" placeholder="Ketik atau pilih kelompok" autocomplete="off">
+        <datalist id="list-kelompok"></datalist>
+        
+        <div class="section-title">📅 Waktu & Kategori</div>
+        <input type="date" id="tanggal">
+        <select id="waktu_halqoh">
+          <option value="">- Pilih Waktu Halqoh -</option>
+          <option value="Halqoh Pagi">Halqoh Pagi ☀️</option>
+          <option value="Halqoh Malam">Halqoh Malam 🌙</option>
+        </select>
+        <select id="kategori">
+          <option value="">- Pilih Kategori Setoran -</option>
+          <option value="Hafalan">Hafalan 🆕</option>
+          <option value="Murajaah">Murajaah 🔄</option>
+        </select>
+      </div>
+
+      <div class="form-column">
+        <div class="section-title">📖 Detail Progres</div>
+        <div class="input-row">
+          <select id="juz"><option value="">Juz</option></select>
+          <select id="surat"><option value="">- Surat Awal -</option></select>
+        </div>
+        <div class="input-row">
+          <select id="juz2"><option value="">Juz</option></select>
+          <select id="surat2"><option value="">- Surat Akhir -</option></select>
+        </div>
+        <div class="section-title">🔢 Range Ayat</div>
+        <input type="text" id="dari_ayat" placeholder="Contoh: 1-7">
+        <div class="input-hint">Format: ayat-ayat (contoh: 1-7)</div>
+        <input type="text" id="sampai_ayat" placeholder="Contoh: 1-20">
+        <div class="input-hint">Format: ayat-ayat (contoh: 1-20)</div>
+        <input type="number" id="baris" placeholder="Jumlah Baris" min="1">
+        <input type="number" id="kesalahan" placeholder="Jumlah Kesalahan" min="0">
+        <input type="text" id="nilai" readonly placeholder="Nilai otomatis (100 - kesalahan)">
+      </div>
+    </div>
+    <button class="btn" onclick="simpanData()"><i class="fa-solid fa-floppy-disk"></i> SIMPAN DATA</button>
+  </div>
+</div>
+
+<div id="rekapPage" style="display: none;">
+  <button class="back-btn" onclick="kembaliKeMenu()"><i class="fa-solid fa-arrow-left"></i> Kembali ke Menu</button>
+  <h3>📊 Data Setoran</h3>
+  <div class="filter-container">
+    <div style="font-size: 16px; font-weight: 700; color: #0a8f5a; margin-bottom: 15px; text-align: center;"><i class="fa-solid fa-filter"></i> Filter Data</div>
+    <div class="filter-grid">
+      <div class="filter-group">
+        <label>Nama Santri</label>
+        <select id="filterNama"><option value="">Semua Santri</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Kategori</label>
+        <select id="filterKategori"><option value="">Semua Kategori</option><option value="Hafalan">Hafalan</option><option value="Murajaah">Murajaah</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Waktu Halqoh</label>
+        <select id="filterWaktu"><option value="">Semua Waktu</option><option value="Halqoh Pagi">Halqoh Pagi</option><option value="Halqoh Malam">Halqoh Malam</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Periode</label>
+        <select id="filterPeriode" onchange="updatePeriodeInput()">
+          <option value="">Semua Periode</option><option value="minggu">Per Minggu</option><option value="bulan">Per Bulan</option><option value="custom">Rentang Tanggal</option>
+        </select>
+      </div>
+      <div class="filter-group" id="mingguGroup" style="display: none;"><label>Pilih Minggu</label><input type="week" id="filterMinggu"></div>
+      <div class="filter-group" id="bulanGroup" style="display: none;"><label>Pilih Bulan</label><input type="month" id="filterBulan"></div>
+      <div class="filter-group" id="dariTanggalGroup" style="display: none;"><label>Dari Tanggal</label><input type="date" id="filterDariTanggal"></div>
+      <div class="filter-group" id="sampaiTanggalGroup" style="display: none;"><label>Sampai Tanggal</label><input type="date" id="filterSampaiTanggal"></div>
+    </div>
+    <div class="filter-actions">
+      <button class="btn-filter" onclick="applyFilter()"><i class="fa-solid fa-magnifying-glass"></i> Terapkan Filter</button>
+      <button class="btn-reset" onclick="resetFilter()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+      <button class="btn-download" onclick="downloadExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
+      <button class="btn-pdf" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+	  <button class="btn-download" style="background: #f39c12;" onclick="document.getElementById('fileImport').click()">Import Excel</button>
+	<input type="file" id="fileImport" accept=".xlsx, .xls" style="display:none" onchange="prosesImportExcel(event)">
+    </div>
+  </div>
+  
+  <div class="stats-container">
+    <div class="stats-card"><div class="stats-number" id="statTotal">0</div><div class="stats-label">Total Data</div></div>
+    <div class="stats-card" style="background: linear-gradient(135deg, #17a2b8, #138496);"><div class="stats-number" id="statRataNilai">0</div><div class="stats-label">Rata Nilai</div></div>
+    <div class="stats-card" style="background: linear-gradient(135deg, #ffc107, #e0a800); color: #000;"><div class="stats-number" id="statTotalHal">0</div><div class="stats-label">Total Hal</div></div>
+  </div>
+
+  <div class="table-wrapper">
+    <table id="tbl">
+      <thead>
+        <tr><th>Tanggal</th><th>Nama</th><th>Waktu</th><th>Juz A</th><th>Surat A</th><th>Juz Ak</th><th>Surat Ak</th><th>Kat</th><th>Dari Ayat</th><th>Sampai Ayat</th><th>Hal</th><th>Nilai</th><th>Aksi</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div id="mobileList"></div>
+  </div>
+</div>
+
+<div id="pdfModal" class="pdf-modal">
+  <div class="pdf-modal-content">
+    <div class="pdf-header">
+      <div class="pdf-title">📋 REKAPITULASI SETORAN HAFALAN</div>
+      <div style="font-size: 14px; color: #666;">MUTABAAH DIGITAL PRO</div>
+      <div style="font-size: 12px; color: #0a8f5a; margin-top: 5px; font-weight: 600;" id="pdfFilterInfo"></div>
+    </div>
+    <div id="pdfTableContainer"></div>
+    <div style="text-align: center; font-size: 12px; color: #888; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+      <p>Dicetak pada: <span id="pdfDate"></span></p>
+      <p>Total Data: <span id="pdfTotalData">0</span> | Rata-rata Nilai: <span id="pdfRataNilai">0</span> | Total Halaman: <span id="pdfTotalHal">0</span></p>
+    </div>
+    <div class="pdf-actions">
+      <button class="pdf-close" onclick="closePDFModal()"><i class="fa-solid fa-xmark"></i> Tutup</button>
+      <button class="pdf-download" onclick="generatePDF()"><i class="fa-solid fa-download"></i> Download PDF</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="loading">
+  <div class="loading-content"><div style="font-size: 40px; margin-bottom: 15px;">⏳</div>Memuat data...</div>
+</div>
+
+<script>
+// --- REGISTRASI PWA SERVICE WORKER ---
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => console.log('SW terdaftar')).catch(err => console.log('SW error:', err));
+  });
+}
+
+// --- DATA KONSTANTA ---
+const DATA_SURAT = {
+    1: ['Al-Fatihah', 'Al-Baqarah'], 
+	2: ['Al-Baqarah'], 
+	3: ['Al-Baqarah', 'Ali Imran'], 
+	4: ['Ali Imran', 'An-Nisa'], 
+	5: ['An-Nisa'], 
+	6: ['An-Nisa', 'Al-Ma\'idah'], 
+	7: ['Al-Ma\'idah', 'Al-An\'am'], 
+	8: ['Al-An\'am', 'Al-A\'raf'], 
+	9: ['Al-A\'raf', 'Al-Anfal'], 
+	10: ['Al-Anfal', 'At-Taubah'], 
+	11: ['At-Taubah', 'Yunus', 'Hud'], 
+	12: ['Hud', 'Yusuf'], 
+	13: ['Yusuf', 'Ar-Ra\'d', 'Ibrahim'], 
+	14: ['Al-Hijr', 'An-Nahl'], 
+	15: ['Al-Isra', 'Al-Kahf'], 
+	16: ['Al-Kahf', 'Maryam', 'Ta-Ha'], 
+	17: ['Al-Anbiya', 'Al-Hajj'], 
+	18: ['Al-Mu\'minun', 'An-Nur', 'Al-Furqan'], 
+	19: ['Al-Furqan', 'Ash-Shu\'ara', 'An-Naml'], 
+	20: ['An-Naml', 'Al-Qasas', 'Al-Ankabut'], 
+	21: ['Al-Ankabut', 'Ar-Rum', 'Luqman', 'As-Sajdah', 'Al Ahzab'], 
+	22: ['Al-Ahzab', 'Saba', 'Fatir', 'Ya-Sin'], 
+	23: ['Ya-Sin', 'As-Saffat', 'Sad', 'Az-Zumar'], 
+	24: ['Az-Zumar', 'Ghafir', 'Fussilat'], 
+	25: ['Fussilat', 'Ash-Shura', 'Az-Zukhruf', 'Ad-Dukhan', 'Al-Jasiyah'], 
+	26: ['Al-Ahqaf', 'Muhammad', 'Al-Fath', 'Al-Hujurat', 'Qaf', 'Az-Zariyat'], 
+	27: ['Az-Zariyat', 'At-Tur', 'An-Najm', 'Al-Qamar', 'Ar-Rahman', 'Al-Waqiah', 'Al-Hadid'], 
+	28: ['Al-Mujadalah', 'Al-Hasyr', 'Al-Mumtahanah', 'As-Saff', 'Al-Jumu\'ah', 'Al-Munafiqun', 'At-Taghabun', , 'At-Talaq', 'At-Tahrim'], 
+	29: ['Al-Mulk', 'Al-Qalam', 'Al-Haqqah', 'Al-Ma\'arij', 'Nuh', 'Al-Jinn', 'Al-Muzzammil', 'Al-Muddassir', 'Al-Qiyamah', 'Al-Insan', 'Al-Mursalat'], 
+	30: ['An-Naba\'', '\'Abasa',  'At-Takwir', 'Al-Infitar', 'Al-Mutaffifin', 'Al-Insyiqaq', 'Al-Buruj', 'At-Tariq', 'Al-A`la', 'Al-Ghasiyah', 'Al-Fajr', 'Al-Balad', 'Asy-Syams', 'Al-Lail', 'Ad-Duha', 'Ash-Sharh', 'At-Tin', 'Al-`Alaq', 'Al-Qadr', 'Al-Bayyinah', 'Az-Zalzalah', 'Al-Adiyat', 'Al-Qari\'ah', 'At-Takathur', 'Al-Asr', 'Al-Humazah', 'Al-Fil', 'Quraysh', 'Al-Ma\'un', 'Al-Kautsar', 'Al-Kafirun', 'An-Nasr', 'Al-Masad', 'Al-Ikhlas', 'Al-Falaq', 'An-Nas']
+};
+
+let santriList = [], editRow = null;
+let allData = [], filteredData = [], originalRowIndices = [];
+
+// --- FUNGSI LOCAL STORAGE (Pengganti Spreadsheet) ---
+function getLocalData() {
+  let d = localStorage.getItem('mutabaah_data');
+  if(!d) {
+    // Inisialisasi header seperti di Spreadsheet [cite: 216]
+    d = [['Tanggal','Nama','Kelompok','Juz Awal','Surat Awal','Juz Akhir','Surat Akhir','Waktu','Kategori','Dari Ayat','Sampai Ayat','Baris','Halaman','Kesalahan','Nilai']];
+    localStorage.setItem('mutabaah_data', JSON.stringify(d));
+    return d;
+  }
+  return JSON.parse(d);
+}
+
+function saveLocalData(dataArr) {
+  localStorage.setItem('mutabaah_data', JSON.stringify(dataArr));
+}
+
+// Inisialisasi awal
+window.onload = () => {
+  const opsi = Array.from({length:30},(_,i)=>`<option value="${i+1}">Juz ${i+1}</option>`).join('');
+  document.getElementById('juz').innerHTML += opsi;
+  document.getElementById('juz2').innerHTML += opsi;
+  allData = getLocalData();
+  ekstrakSantri();
+};
+
+function ekstrakSantri() {
+  let unik = new Set();
+  santriList = [];
+  for(let i=1; i<allData.length; i++) {
+    let nama = allData[i][1];
+    let kelompok = allData[i][2];
+    if(nama && !unik.has(nama)) {
+      unik.add(nama);
+      santriList.push({ nama: nama, kelompok: kelompok });
+    }
+  }
+}
+
+// Event otomatis isi kelompok jika nama sudah pernah ada
+document.getElementById('nama').addEventListener('input', function() {
+  const selected = santriList.find(s => s.nama === this.value);
+  if(selected && selected.kelompok) {
+    document.getElementById('kelompok').value = selected.kelompok;
+  }
+});
+
+function updateSuratLokal(juzId, suratId) {
+  const juzVal = document.getElementById(juzId).value;
+  const daftar = DATA_SURAT[juzVal] || [];
+  document.getElementById(suratId).innerHTML = '<option value="">- Pilih Surat -</option>' + daftar.map(s => `<option value="${s}">${s}</option>`).join('');
+}
+document.getElementById('juz').onchange = () => updateSuratLokal('juz', 'surat');
+document.getElementById('juz2').onchange = () => updateSuratLokal('juz2', 'surat2');
+
+/* NAVIGATION */
+function bukaMenu() {
+  document.getElementById('dashboardPage').style.display = 'none';
+  document.getElementById('menuPage').style.display = 'block';
+  loadTotalSetoran();
+}
+function kembaliKeDashboard() {
+  ['menuPage','rekapPage','mainAppPage'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('dashboardPage').style.display = 'flex';
+}
+function bukaInputForm() {
+  document.getElementById('menuPage').style.display = 'none';
+  document.getElementById('mainAppPage').style.display = 'block';
+  loadDatalistSantri();
+  document.getElementById('tanggal').valueAsDate = new Date();
+}
+function kembaliKeMenu() {
+  document.getElementById('mainAppPage').style.display = 'none';
+  document.getElementById('rekapPage').style.display = 'none';
+  document.getElementById('menuPage').style.display = 'block';
+  resetForm();
+  editRow = null;
+  loadTotalSetoran();
+}
+function bukaRekap() {
+  document.getElementById('menuPage').style.display = 'none';
+  document.getElementById('rekapPage').style.display = 'block';
+  loadSantriForFilter();
+  loadTableWithFilter();
+}
+
+function loadTotalSetoran() {
+  document.getElementById('totalSetoran').innerText = Math.max(0, allData.length - 1);
+}
+
+function loadDatalistSantri() {
+  ekstrakSantri();
+  document.getElementById('list-nama').innerHTML = santriList.map(s => `<option value="${s.nama}">`).join('');
+  let unikKel = [...new Set(santriList.map(s => s.kelompok))].filter(Boolean);
+  document.getElementById('list-kelompok').innerHTML = unikKel.map(k => `<option value="${k}">`).join('');
+}
+
+function loadSantriForFilter(){
+  ekstrakSantri();
+  document.getElementById('filterNama').innerHTML = '<option value="">Semua Santri</option>' + santriList.map(s => `<option value="${s.nama}">${s.nama}</option>`).join('');
+}
+
+/* HITUNG NILAI & HALAMAN */
+document.getElementById('kesalahan').oninput = () => {
+  const k = parseInt(document.getElementById('kesalahan').value) || 0;
+  document.getElementById('nilai').value = Math.max(0, 100 - k);
+};
+function hitungHalaman(baris) {
+  const b = Number(baris) || 0;
+  return Math.round((b / 15) * 10) / 10;
+}
+
+/* SIMPAN (Offline) */
+function simpanData() {
+  const data = {
+    tanggal: document.getElementById('tanggal').value,
+    nama: document.getElementById('nama').value.trim(),
+    kelompok: document.getElementById('kelompok').value.trim(),
+    juz: document.getElementById('juz').value,
+    surat: document.getElementById('surat').value,
+    juz2: document.getElementById('juz2').value,
+    surat2: document.getElementById('surat2').value,
+    waktu: document.getElementById('waktu_halqoh').value,
+    kategori: document.getElementById('kategori').value,
+    dari_ayat: document.getElementById('dari_ayat').value,
+    sampai_ayat: document.getElementById('sampai_ayat').value,
+    baris: document.getElementById('baris').value,
+    kesalahan: document.getElementById('kesalahan').value
+  };
+
+  if(!data.nama || !data.juz) return alert('Nama dan Juz harus diisi!');
+  showLoading(true);
+
+  const halaman = hitungHalaman(data.baris);
+  const nilai = Math.max(0, 100 - Number(data.kesalahan || 0));
+  const rowData = [data.tanggal, data.nama, data.kelompok, data.juz, data.surat, data.juz2, data.surat2, data.waktu, data.kategori, data.dari_ayat, data.sampai_ayat, data.baris, halaman, data.kesalahan, nilai];
+
+  if(editRow !== null) {
+    allData[editRow] = rowData;
+  } else {
+    allData.push(rowData);
+  }
+
+  saveLocalData(allData);
+  ekstrakSantri();
+
+  setTimeout(() => {
+    showLoading(false);
+    showToast(editRow !== null ? 'Data diupdate' : 'Data disimpan');
+    editRow = null;
+    resetForm();
+    kembaliKeMenu();
+  }, 500);
+}
+
+/* FILTER & REKAP (Sama dengan aslinya, hanya tidak perlu panggil google.script) */
+function updatePeriodeInput() {
+  const p = document.getElementById('filterPeriode').value;
+  document.getElementById('mingguGroup').style.display = p === 'minggu' ? 'block' : 'none';
+  document.getElementById('bulanGroup').style.display = p === 'bulan' ? 'block' : 'none';
+  document.getElementById('dariTanggalGroup').style.display = p === 'custom' ? 'block' : 'none';
+  document.getElementById('sampaiTanggalGroup').style.display = p === 'custom' ? 'block' : 'none';
+}
+
+function applyFilter() {
+  showLoading(true);
+  const fNama = document.getElementById('filterNama').value;
+  const fKategori = document.getElementById('filterKategori').value;
+  const fWaktu = document.getElementById('filterWaktu').value;
+  const fPeriode = document.getElementById('filterPeriode').value;
+  
+  let filtered = [], indices = [];
+  for(let i = 1; i < allData.length; i++){
+    let r = allData[i], include = true;
+    if(fNama && r[1] !== fNama) include = false;
+    if(fKategori && r[8] !== fKategori) include = false;
+    if(fWaktu && r[7] !== fWaktu) include = false;
+    
+    if(fPeriode && include){
+      const rowDate = new Date(r[0]);
+      if(fPeriode === 'minggu'){
+        const wi = document.getElementById('filterMinggu').value;
+        if(wi){
+          const [y,w] = wi.split('-W');
+          const s = getDateOfISOWeek(w,y);
+          const e = new Date(s); e.setDate(e.getDate()+6);
+          if(rowDate < s || rowDate > e) include = false;
+        }
+      } else if(fPeriode === 'bulan'){
+        const mi = document.getElementById('filterBulan').value;
+        if(mi){
+          const [y,m] = mi.split('-');
+          if(rowDate.getFullYear() != y || (rowDate.getMonth()+1) != m) include = false;
+        }
+      } else if(fPeriode === 'custom'){
+        const dt = document.getElementById('filterDariTanggal').value;
+        const st = document.getElementById('filterSampaiTanggal').value;
+        if(dt && st){
+          const s = new Date(dt), e = new Date(st);
+          e.setHours(23,59,59);
+          if(rowDate < s || rowDate > e) include = false;
+        }
+      }
+    }
+    if(include){ filtered.push(r); indices.push(i); }
+  }
+  
+  filteredData = filtered; originalRowIndices = indices;
+  renderTable(filtered, indices);
+  updateStats(filtered);
+  showLoading(false);
+  showToast(`Ditemukan ${filtered.length} data`);
+}
+
+function getDateOfISOWeek(w,y){
+  const s = new Date(y, 0, 1 + (w-1)*7);
+  const d = s.getDay();
+  const r = new Date(s);
+  if(d <= 4) r.setDate(s.getDate() - s.getDay() + 1);
+  else r.setDate(s.getDate() + 8 - s.getDay());
+  return r;
+}
+
+function resetFilter(){
+  ['filterNama','filterKategori','filterWaktu','filterPeriode','filterMinggu','filterBulan','filterDariTanggal','filterSampaiTanggal'].forEach(id => document.getElementById(id).value = '');
+  updatePeriodeInput();
+  
+  let rows = [], idx = [];
+  for(let i = 1; i < allData.length; i++){ rows.push(allData[i]); idx.push(i); }
+  filteredData = rows; originalRowIndices = idx;
+  renderTable(rows, idx); updateStats(rows);
+  showToast('Filter direset');
+}
+
+/* DOWNLOAD EXCEL & PDF */
+function downloadExcel(){
+  if(!filteredData.length) return alert('Tidak ada data!');
+  const headers = ['Tanggal','Nama','Kelompok','Juz Awal','Surat Awal','Juz Akhir','Surat Akhir','Waktu','Kategori','Dari Ayat','Sampai Ayat','Baris','Halaman','Kesalahan','Nilai'];
+  const data = filteredData.map(r => [r[0],r[1],r[2],r[3],r[4],r[5],r[6],r[7],r[8],r[9],r[10],r[11],r[12],r[13],r[14]]);
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Rekap");
+  const n = new Date();
+  XLSX.writeFile(wb, `Rekap_${n.getFullYear()}${String(n.getMonth()+1).padStart(2,'0')}${String(n.getDate()).padStart(2,'0')}.xlsx`);
+  showToast('Excel berhasil di-download!');
+}
+
+let pdfDataForExport = [];
+function downloadPDF(){
+  if(!filteredData.length) return alert('Tidak ada data!');
+  pdfDataForExport = filteredData;
+  let info = [];
+  if(document.getElementById('filterNama').value) info.push(`Nama: ${document.getElementById('filterNama').value}`);
+  if(document.getElementById('filterKategori').value) info.push(`Kategori: ${document.getElementById('filterKategori').value}`);
+  if(document.getElementById('filterWaktu').value) info.push(`Waktu: ${document.getElementById('filterWaktu').value}`);
+  const fp = document.getElementById('filterPeriode').value;
+  if(fp === 'minggu' && document.getElementById('filterMinggu').value) info.push(`Minggu: ${document.getElementById('filterMinggu').value}`);
+  else if(fp === 'bulan' && document.getElementById('filterBulan').value) info.push(`Bulan: ${document.getElementById('filterBulan').value}`);
+  else if(fp === 'custom'){
+    const d = document.getElementById('filterDariTanggal').value;
+    const s = document.getElementById('filterSampaiTanggal').value;
+    if(d && s) info.push(`Periode: ${d} s/d ${s}`);
+  }
+  
+  document.getElementById('pdfFilterInfo').innerText = info.length ? 'Filter: ' + info.join(' | ') : 'Semua Data';
+  let html = `<table class="pdf-table"><thead><tr><th>No</th><th>Tanggal</th><th>Nama</th><th>Waktu</th><th>Juz</th><th>Surat</th><th>Kat</th><th>Dari Ayat</th><th>Sampai Ayat</th><th>Nilai</th></tr></thead><tbody>`;
+  filteredData.forEach((r,i) => {
+    html += `<tr><td>${i+1}</td><td>${r[0]||'-'}</td><td>${r[1]||'-'}</td><td>${r[7]||'-'}</td><td>${r[3]||'-'}-${r[5]||'-'}</td><td>${r[4]||'-'}<br>${r[6]||'-'}</td><td>${r[8]||'-'}</td><td>${r[9]||'-'}</td><td>${r[10]||'-'}</td><td><b>${r[14]||'0'}</b></td></tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('pdfTableContainer').innerHTML = html;
+  const tn = filteredData.reduce((s,r) => s + (parseFloat(r[14])||0), 0);
+  document.getElementById('pdfTotalData').innerText = filteredData.length;
+  document.getElementById('pdfRataNilai').innerText = filteredData.length ? (tn/filteredData.length).toFixed(1) : 0;
+  document.getElementById('pdfTotalHal').innerText = filteredData.reduce((s,r) => s + (parseFloat(r[12])||0), 0).toFixed(1);
+  document.getElementById('pdfDate').innerText = new Date().toLocaleString('id-ID');
+  document.getElementById('pdfModal').style.display = 'block';
+}
+
+function closePDFModal(){ document.getElementById('pdfModal').style.display = 'none'; }
+function generatePDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('l', 'mm', 'a4');
+  doc.setFontSize(16); doc.setTextColor(10, 143, 90); doc.text('REKAPITULASI SETORAN HAFALAN', 148, 15, { align: 'center' });
+  doc.setFontSize(12); doc.setTextColor(100); doc.text('MUTABAAH DIGITAL PRO', 148, 22, { align: 'center' });
+  doc.setFontSize(10); doc.text(document.getElementById('pdfFilterInfo').innerText, 148, 28, { align: 'center' });
+  const td = pdfDataForExport.map((r,i) => [i+1, r[0]||'-', r[1]||'-', r[7]||'-', `${r[3]||'-'}-${r[5]||'-'}`, `${r[4]||'-'}\n${r[6]||'-'}`, r[8]||'-', r[9]||'-', r[10]||'-', r[14]||'0']);
+  doc.autoTable({
+    head: [['No','Tanggal','Nama','Waktu','Juz','Surat','Kat','Dari Ayat','Sampai Ayat','Nilai']], body: td, startY: 35, theme: 'grid',
+    headStyles: { fillColor: [10, 143, 90], textColor: 255, fontSize: 9, halign: 'center' }, bodyStyles: { fontSize: 8, halign: 'center', valign: 'middle' },
+    columnStyles: { 0: {cellWidth: 8}, 1: {cellWidth: 20}, 2: {cellWidth: 25}, 3: {cellWidth: 20}, 4: {cellWidth: 12}, 5: {cellWidth: 30}, 6: {cellWidth: 15}, 7: {cellWidth: 18}, 8: {cellWidth: 18}, 9: {cellWidth: 12} },
+    alternateRowStyles: { fillColor: [240, 248, 240] }, margin: { top: 35 }
+  });
+  const fy = doc.lastAutoTable.finalY + 10;
+  const tn = pdfDataForExport.reduce((s,r) => s + (parseFloat(r[14])||0), 0);
+  const rn = pdfDataForExport.length ? (tn/pdfDataForExport.length).toFixed(1) : 0;
+  const th = pdfDataForExport.reduce((s,r) => s + (parseFloat(r[12])||0), 0);
+  doc.setFontSize(10); doc.setTextColor(50); doc.text(`Total Data: ${pdfDataForExport.length}  |  Rata-rata Nilai: ${rn}  |  Total Halaman: ${th.toFixed(1)}`, 148, fy, { align: 'center' });
+  doc.setFontSize(9); doc.setTextColor(100); doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 148, fy + 7, { align: 'center' });
+  const n = new Date(); doc.save(`Rekap_${n.getFullYear()}${String(n.getMonth()+1).padStart(2,'0')}${String(n.getDate()).padStart(2,'0')}.pdf`);
+  showToast('PDF berhasil di-download!'); closePDFModal();
+}
+window.onclick = e => { if(e.target == document.getElementById('pdfModal')) closePDFModal(); };
+
+function updateStats(data){
+  document.getElementById('statTotal').innerText = data.length;
+  if(data.length){
+    const tn = data.reduce((s,r) => s + (parseFloat(r[14])||0), 0);
+    document.getElementById('statRataNilai').innerText = (tn/data.length).toFixed(1);
+    document.getElementById('statTotalHal').innerText = data.reduce((s,r) => s + (parseFloat(r[12])||0), 0).toFixed(1);
+  } else { document.getElementById('statRataNilai').innerText = '0'; document.getElementById('statTotalHal').innerText = '0'; }
+}
+
+/* TABLE (Offline) */
+function loadTableWithFilter(){
+  showLoading(true);
+  setTimeout(() => { // Simulasi loading agar tetap smooth UI-nya
+    let rows = [], idx = [];
+    for(let i = 1; i < allData.length; i++){ rows.push(allData[i]); idx.push(i); } // i adalah index asli di allData
+    filteredData = rows; originalRowIndices = idx;
+    renderTable(rows, idx); updateStats(rows);
+    showLoading(false);
+  }, 300);
+}
+
+function renderTable(data, rowIndices){
+  const tb = document.querySelector('#tbl tbody');
+  tb.innerHTML = ''; document.getElementById('mobileList').innerHTML = '';
+  data.forEach((r,i) => {
+    const arrIdx = rowIndices ? rowIndices[i] : (i + 1);
+    const tr = document.createElement('tr');
+    if(arrIdx === editRow) tr.classList.add('editing');
+    tr.innerHTML = `<td>${r[0]||'-'}</td><td>${r[1]||'-'}</td><td>${r[7]||'-'}</td><td>${r[3]||'-'}</td><td>${r[4]||'-'}</td><td>${r[5]||'-'}</td><td>${r[6]||'-'}</td><td>${r[8]||'-'}</td><td>${r[9]||'-'}</td><td>${r[10]||'-'}</td><td>${r[12]||'0'}</td><td><b>${r[14]||'0'}</b></td><td><button class="icon-btn edit" onclick="editDataFromRekap(${i})">✏️</button><button class="icon-btn delete" onclick="hapusDataFromRekap(${i})">🗑️</button></td>`;
+    tb.appendChild(tr);
+    
+    const c = document.createElement('div');
+    c.className = 'data-card';
+    c.innerHTML = `<div class="card-header"><div class="nama-santri">${r[1]||'-'}</div><div class="nilai-badge">${r[14]||'0'}</div></div><div class="info-grid"><div class="info-item"><span class="info-label">📅 Tanggal</span><span class="info-value">${r[0]||'-'}</span></div><div class="info-item"><span class="info-label">⏰ Waktu</span><span class="info-value">${r[7]||'-'}</span></div><div class="info-item"><span class="info-label">📖 Juz Awal</span><span class="info-value">${r[3]||'-'} - ${r[4]||'-'}</span></div><div class="info-item"><span class="info-label">📖 Juz Akhir</span><span class="info-value">${r[5]||'-'} - ${r[6]||'-'}</span></div><div class="info-item"><span class="info-label">📝 Kategori</span><span class="info-value">${r[8]||'-'}</span></div><div class="info-item"><span class="info-label">📄 Halaman</span><span class="info-value">${r[12]||'0'} Hal</span></div></div><div class="ayat-section"><div class="ayat-title">📍 RANGE AYAT</div><div class="ayat-value">Dari: ${r[9]||'-'} | Sampai: ${r[10]||'-'}</div></div><div class="card-actions"><button class="btn-action btn-edit" onclick="editDataFromRekap(${i})"><i class="fa-solid fa-pen-to-square"></i> Edit</button><button class="btn-action btn-delete" onclick="hapusDataFromRekap(${i})"><i class="fa-solid fa-trash"></i> Hapus</button></div>`;
+    document.getElementById('mobileList').appendChild(c);
+  });
+}
+
+function editDataFromRekap(index){
+  const arrIdx = originalRowIndices[index];
+  const r = allData[arrIdx];
+  editRow = arrIdx;
+  
+  document.getElementById('rekapPage').style.display = 'none';
+  document.getElementById('mainAppPage').style.display = 'block';
+  loadDatalistSantri();
+  
+  document.getElementById('tanggal').value = r[0]||'';
+  document.getElementById('nama').value = r[1]||'';
+  document.getElementById('kelompok').value = r[2]||'';
+  document.getElementById('juz').value = r[3]||'';
+  updateSuratLokal('juz', 'surat'); document.getElementById('surat').value = r[4]||'';
+  document.getElementById('juz2').value = r[5]||'';
+  updateSuratLokal('juz2', 'surat2'); document.getElementById('surat2').value = r[6]||'';
+  document.getElementById('waktu_halqoh').value = r[7]||'';
+  document.getElementById('kategori').value = r[8]||'';
+  document.getElementById('dari_ayat').value = r[9]||'';
+  document.getElementById('sampai_ayat').value = r[10]||'';
+  document.getElementById('baris').value = r[11]||'';
+  document.getElementById('kesalahan').value = r[13]||'';
+  document.getElementById('nilai').value = r[14]||'';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function hapusDataFromRekap(index){
+  const arrIdx = originalRowIndices[index];
+  if(!confirm('Hapus data ini?')) return;
+  showLoading(true);
+  
+  allData.splice(arrIdx, 1);
+  saveLocalData(allData);
+  
+  setTimeout(() => {
+    showLoading(false);
+    showToast('Data dihapus');
+    loadTableWithFilter();
+  }, 500);
+}
+
+function resetForm(){
+  ['tanggal','dari_ayat','sampai_ayat','baris','kesalahan','nilai','juz','juz2','nama','kelompok','waktu_halqoh','kategori'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('surat').innerHTML = '<option value="">- Pilih Surat -</option>';
+  document.getElementById('surat2').innerHTML = '<option value="">- Pilih Surat -</option>';
+}
+
+function showToast(t){
+  const toast = document.getElementById('toast');
+  toast.innerText = t; toast.style.display = 'block';
+  setTimeout(() => toast.style.display = 'none', 2000);
+}
+function showLoading(s = true){ document.getElementById('loading').style.display = s ? 'flex' : 'none'; }
+
+function prosesImportExcel(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  showLoading(true);
+
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      
+      // Ubah data sheet ke JSON dengan baris pertama sebagai header
+      const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+      if (jsonData.length === 0) {
+        showLoading(false);
+        alert("File kosong atau format tidak sesuai.");
+        return;
+      }
+
+let jumlahBaru = 0;
+      let jumlahDiupdate = 0;
+
+      // Map data Excel ke array allData
+      jsonData.forEach(row => {
+        const tgl = row['Tanggal'] || new Date().toISOString().split('T')[0];
+        const nama = row['Nama'] || '';
+        const waktu = row['Waktu'] || row['Waktu Halqoh'] || '';
+        const kategori = row['Kategori'] || '';
+        
+        // --- TAMBAHAN LOGIKA PERHITUNGAN OTOMATIS ---
+        // 1. Ambil jumlah baris dari Excel, pastikan berupa angka
+        const jumlahBaris = parseFloat(row['Baris']) || 0;
+        
+        // 2. Hitung halaman otomatis (Baris dibagi 15, dibulatkan 1 desimal)
+        const hitungHalaman = Math.round((jumlahBaris / 15) * 10) / 10;
+        
+        // 3. (Opsional) Hitung nilai otomatis juga jika di Excel kosong
+        const jumlahKesalahan = parseFloat(row['Kesalahan']) || 0;
+        const hitungNilai = row['Nilai'] !== undefined && row['Nilai'] !== "" ? parseFloat(row['Nilai']) : Math.max(0, 100 - jumlahKesalahan);
+        // ---------------------------------------------
+
+        const rowData = [
+          tgl,                                                      // [0] Tanggal
+          nama,                                                     // [1] Nama
+          row['Kelompok'] || '',                                    // [2] Kelompok
+          row['Juz Awal'] || row['Juz'] || '',                      // [3] Juz Awal
+          row['Surat Awal'] || row['Surat'] || '',                  // [4] Surat Awal
+          row['Juz Akhir'] || '',                                   // [5] Juz Akhir
+          row['Surat Akhir'] || '',                                 // [6] Surat Akhir
+          waktu,                                                    // [7] Waktu
+          kategori,                                                 // [8] Kategori
+          row['Dari Ayat'] || '',                                   // [9] Dari Ayat
+          row['Sampai Ayat'] || '',                                 // [10] Sampai Ayat
+          jumlahBaris,                                              // [11] Baris (Dari Excel)
+          hitungHalaman,                                            // [12] Halaman (Dihitung Otomatis!)
+          jumlahKesalahan,                                          // [13] Kesalahan
+          hitungNilai                                               // [14] Nilai (Dihitung Otomatis / Dari Excel)
+        ];
+
+        // MENCARI DATA YANG SAMA DI TABEL
+        const existingIndex = allData.findIndex(item => 
+          item[0] === tgl && item[1] === nama && item[7] === waktu && item[8] === kategori
+        );
+
+        if (existingIndex !== -1) {
+          allData[existingIndex] = rowData;
+          jumlahDiupdate++;
+        } else {
+          allData.push(rowData);
+          jumlahBaru++;
+        }
+      });
+
+      // Simpan pembaruan ke local storage
+      saveLocalData(allData);
+
+      showLoading(false);
+      showToast(`${jumlahBaru} baru ditambahkan, ${jumlahDiupdate} diperbarui!`);
+      
+      // Refresh tabel
+      loadTableWithFilter();
+      loadTotalSetoran(); // Update statistik di dashboard
+      
+    } catch (error) {
+      showLoading(false);
+      alert("Terjadi kesalahan saat membaca file: " + error.message);
+    } finally {
+      // Reset value agar bisa import file yang sama dua kali jika diperlukan
+      event.target.value = ""; 
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+</script>
+
+</body>
+</html>
