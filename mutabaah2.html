@@ -251,9 +251,11 @@
     </div>
 
     <div id="areaRekapAbsensi" style="display: none;">
-       <div style="background:#fff; padding:15px; border-radius:14px; margin-bottom:15px; display:flex; gap:10px; flex-wrap: wrap;">
-          <input type="month" id="filterBulanAbsen" onchange="renderRekapAbsensi()" style="flex:1; min-width: 150px; height: 54px; border-radius:10px; border:2px solid #e0e0e0; padding:0 16px; margin-bottom: 0;">
-       </div>
+<div style="background:#fff; padding:15px; border-radius:14px; margin-bottom:15px; display:flex; gap:10px; flex-wrap: wrap;">
+  <input type="month" id="filterBulanAbsen" onchange="renderRekapAbsensi()" style="flex:1; min-width: 150px; height: 54px; border-radius:10px; border:2px solid #e0e0e0; padding:0 16px; margin-bottom: 0;">
+  <button onclick="exportAbsenExcel()" style="background:#27ae60; color:#fff; border:none; border-radius:10px; padding:0 15px; height: 54px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-file-excel"></i> Excel</button>
+  <button onclick="exportAbsenPDF()" style="background:#e74c3c; color:#fff; border:none; border-radius:10px; padding:0 15px; height: 54px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+</div>
        <div class="table-container" style="overflow-x: auto; background:#fff; border-radius:14px;">
           <table id="tblRekapAbsensi" style="display: table; width: 100%;">
             <thead>
@@ -1120,6 +1122,83 @@ function prosesImportExcel(event) {
   };
 
   reader.readAsArrayBuffer(file);
+}
+// ==========================================
+// FUNGSI EXPORT ABSENSI (EXCEL & PDF)
+// ==========================================
+
+function exportAbsenExcel() {
+    const filterBulan = document.getElementById('filterBulanAbsen').value;
+    let absenData = getAbsensiData();
+    
+    // Filter data sesuai bulan yang dipilih (jika ada)
+    let filtered = filterBulan ? absenData.filter(a => a.tanggal.startsWith(filterBulan)) : absenData;
+    filtered.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+    if(filtered.length === 0) return alert('Tidak ada data absensi untuk diexport!');
+
+    const headers = ['Tanggal', 'Waktu', 'Nama Santri', 'Status'];
+    const data = filtered.map(d => {
+        let statusFull = d.status === 'H' ? 'Hadir' : (d.status === 'S' ? 'Sakit' : (d.status === 'I' ? 'Izin' : 'Alpa'));
+        return [d.tanggal, d.waktu, d.nama, statusFull];
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Rekap Absensi");
+    
+    let namaFile = filterBulan ? `Rekap_Absensi_${filterBulan}.xlsx` : `Rekap_Absensi_Semua.xlsx`;
+    XLSX.writeFile(wb, namaFile);
+    
+    if(typeof showToast === 'function') showToast('Excel Absensi berhasil di-download!');
+}
+
+function exportAbsenPDF() {
+    const filterBulan = document.getElementById('filterBulanAbsen').value;
+    let absenData = getAbsensiData();
+    
+    // Filter data sesuai bulan yang dipilih
+    let filtered = filterBulan ? absenData.filter(a => a.tanggal.startsWith(filterBulan)) : absenData;
+    filtered.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+    if(filtered.length === 0) return alert('Tidak ada data absensi untuk diexport!');
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4'); // Kertas A4 mode Portrait
+    
+    // Judul PDF
+    doc.setFontSize(16); doc.setTextColor(10, 143, 90); doc.text('REKAPITULASI ABSENSI HALQOH', 105, 15, { align: 'center' });
+    doc.setFontSize(12); doc.setTextColor(100); doc.text('MUTABAAH DIGITAL PRO', 105, 22, { align: 'center' });
+    
+    let infoBulan = filterBulan ? `Periode Bulan: ${filterBulan}` : 'Semua Data Absensi';
+    doc.setFontSize(10); doc.text(infoBulan, 105, 28, { align: 'center' });
+
+    // Menyusun data tabel
+    const td = filtered.map((d, i) => {
+        let statusFull = d.status === 'H' ? 'Hadir' : (d.status === 'S' ? 'Sakit' : (d.status === 'I' ? 'Izin' : 'Alpa'));
+        return [i+1, d.tanggal, d.waktu, d.nama, statusFull];
+    });
+
+    // Membuat tabel
+    doc.autoTable({
+        head: [['No', 'Tanggal', 'Waktu', 'Nama Santri', 'Status']],
+        body: td,
+        startY: 35,
+        theme: 'grid',
+        headStyles: { fillColor: [10, 143, 90], textColor: 255, halign: 'center' },
+        bodyStyles: { halign: 'center', valign: 'middle' },
+        columnStyles: { 0: {cellWidth: 10}, 1: {cellWidth: 30}, 2: {cellWidth: 35}, 3: {cellWidth: 80, halign: 'left'}, 4: {cellWidth: 25} },
+        alternateRowStyles: { fillColor: [240, 248, 240] }
+    });
+
+    // Keterangan waktu cetak
+    doc.setFontSize(9); doc.setTextColor(100); doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 105, doc.lastAutoTable.finalY + 10, { align: 'center' });
+    
+    // Download File
+    let namaFile = filterBulan ? `Rekap_Absensi_${filterBulan}.pdf` : `Rekap_Absensi_Semua.pdf`;
+    doc.save(namaFile);
+    
+    if(typeof showToast === 'function') showToast('PDF Absensi berhasil di-download!');
 }
 
 </script>
