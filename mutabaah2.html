@@ -15,7 +15,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
   <style>
-    /* CSS RESET & STYLES (Sama persis dengan versi asli) */
+    /* CSS RESET & STYLES */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { margin: 0; padding: 0; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f0f4f0; font-size: 16px; line-height: 1.5; }
     body { padding: 10px; }
@@ -106,16 +106,14 @@
 
 <div id="dashboardPage">
   <div>
-
     <h2>MUTABAAH DIGITAL PRO</h2>
     <p>Aplikasi Manajemen Setoran Hafalan Al-Qur'an Digital</p>
     <div class="dashboard-box">
       <h3 style="background: none; color: #0a8f5a; margin: 0 0 10px 0; padding: 0; font-size: 18px;">Dashboard Utama</h3>
       <p style="color: #444; font-size: 13px; line-height: 1.6; margin-bottom: 20px;">Kelola data hafalan santri dengan mudah, cepat, dan aman secara offline.</p>
-      <button class="btn" onclick="bukaMenu()" style="margin-top: 0; height: 50px; font-size: 16px;">BUKA APLIKASI 🚀</button>
+      <button class="btn" onclick="bukaMenu()" style="margin-top: 0; height: 50px; font-size: 16px;">BUKA APLIKASI</button>
     </div>
-	
-    <div style="font-size: 12px; color: #888;">© 2024 Mutabaah Digital Pro PWA</div>
+    <div style="font-size: 12px; color: #888;">© 2025 Mutabaah Digital Pro</div>
   </div>
 </div>
 
@@ -125,6 +123,8 @@
   <div class="menu-card">
     <button class="menu-btn menu-btn-primary" onclick="bukaInputForm()"><i class="fa-solid fa-pen-to-square" style="font-size: 24px;"></i><span>INPUT SETORAN BARU</span></button>
     <button class="menu-btn menu-btn-secondary" onclick="bukaRekap()"><i class="fa-solid fa-table-list" style="font-size: 24px;"></i><span>LIHAT REKAP DATA</span></button>
+    <button class="btn" onclick="navigasiKe('absensi')" style="background: #e67e22; margin-top: 10px;"><i class="fa-solid fa-user-check"></i> ABSENSI HALQOH</button>
+    <button class="btn" onclick="navigasiKe('santri')" style="background: #8e44ad; margin-top: 10px;"><i class="fa-solid fa-users"></i> DATA SANTRI</button>
   </div>
   <div class="stats-card">
     <div class="stats-number" id="totalSetoran">0</div>
@@ -134,8 +134,9 @@
 
 <div id="mainAppPage" style="display: none;">
   <button class="back-btn" onclick="kembaliKeMenu()"><i class="fa-solid fa-arrow-left"></i> Kembali ke Menu</button>
-  <h3>📘 Input Setoran</h3>
-  <div class="form-container">
+  
+  <h3 id="titleSetoran">📘 Input Setoran</h3>
+  <div class="form-container" id="formSetoran">
     <div class="form-grid">
       <div class="form-column">
         <div class="section-title">👤 Identitas Santri</div>
@@ -143,7 +144,7 @@
         <input type="text" id="nama" list="list-nama" placeholder="Ketik atau pilih nama santri" autocomplete="off">
         <datalist id="list-nama"></datalist>
         
-        <input type="text" id="kelompok" list="list-kelompok" placeholder="Ketik atau pilih kelompok" autocomplete="off">
+        <input type="text" id="kelompok" list="list-kelompok" placeholder="Ketik atau pilih kelas / kelompok" autocomplete="off">
         <datalist id="list-kelompok"></datalist>
         
         <div class="section-title">📅 Waktu & Kategori</div>
@@ -180,7 +181,94 @@
         <input type="text" id="nilai" readonly placeholder="Nilai otomatis (100 - kesalahan)">
       </div>
     </div>
-    <button class="btn" onclick="simpanData()"><i class="fa-solid fa-floppy-disk"></i> SIMPAN DATA</button>
+    <button class="btn" id="btnSimpanSetoran" onclick="simpanData()"><i class="fa-solid fa-floppy-disk"></i> SIMPAN DATA</button>
+  </div>
+  
+  <div id="sectionSantri" style="display: none;">
+    <h3><i class="fa-solid fa-users"></i> Master Data Santri</h3>
+    
+    <div style="background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px;">
+      <label style="font-weight: bold; font-size: 14px; color: #333;">Tambah Santri Baru</label>
+      <div style="display: flex; gap: 10px; margin-top: 5px; flex-wrap: wrap;">
+        <input type="text" id="inputNamaSantri" placeholder="Nama lengkap santri..." style="flex: 2; min-width: 150px; margin-bottom: 0;">
+        <input type="text" id="inputKelompokSantri" placeholder="Kelas / Kelompok..." style="flex: 1; min-width: 120px; margin-bottom: 0;">
+        <button onclick="tambahSantri()" style="background: #8e44ad; color: white; border: none; padding: 0 20px; border-radius: 10px; cursor: pointer; font-weight: bold; height: 54px;">Tambah</button>
+      </div>
+    </div>
+
+    <div style="overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 10px;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; display: table;">
+        <thead>
+          <tr style="background: #8e44ad; color: white;">
+            <th style="padding: 12px; border-bottom: 1px solid #ddd; width: 50px;">No</th>
+            <th style="padding: 12px; border-bottom: 1px solid #ddd; text-align: left;">Nama Santri</th>
+            <th style="padding: 12px; border-bottom: 1px solid #ddd; text-align: left;">Kelas / Kelompok</th>
+            <th style="padding: 12px; border-bottom: 1px solid #ddd; text-align: center; width: 80px;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="bodyDaftarSantri"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="sectionAbsensi" style="display: none;">
+    <h3>📋 Kelola Absensi Halqoh</h3>
+    
+    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+      <button class="btn" id="btnTabInputAbsen" style="flex: 1; background: #0a8f5a; margin-top:0;" onclick="switchTabAbsensi('input')">Form Absen</button>
+      <button class="btn" id="btnTabRekapAbsen" style="flex: 1; background: #7f8c8d; margin-top:0;" onclick="switchTabAbsensi('rekap')">Data Rekap</button>
+    </div>
+
+    <div id="areaInputAbsensi">
+      <div class="form-container" style="background:#fff; padding:15px; border-radius:14px; margin-bottom:15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <input type="date" id="tanggalAbsen" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+          <select id="waktuAbsen" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+            <option value="Halqoh Pagi">Halqoh Pagi</option>
+            <option value="Halqoh Malam">Halqoh Malam</option>
+          </select>
+          <button onclick="generateFormAbsen()" style="background:#2980b9; color:white; border:none; border-radius:10px; padding:0 20px; font-weight:bold; height: 54px;">Muat Santri</button>
+        </div>
+      </div>
+
+      <div class="table-container" id="containerTabelAbsen" style="display:none; background:#fff; padding:10px; border-radius:14px; overflow-x: auto;">
+        <table id="tblInputAbsen" style="display: table; width: 100%;">
+          <thead>
+            <tr>
+              <th style="text-align:left; background: #2980b9;">Nama Santri</th>
+              <th width="40" style="background: #27ae60;">H</th>
+              <th width="40" style="background: #f39c12;">S</th>
+              <th width="40" style="background: #2980b9;">I</th>
+              <th width="40" style="background: #c0392b;">A</th>
+            </tr>
+          </thead>
+          <tbody id="bodyInputAbsen"></tbody>
+        </table>
+        <button class="btn" onclick="simpanDataAbsensi()" style="margin-top:15px; background:#0a8f5a;">
+          <i class="fa-solid fa-floppy-disk"></i> Simpan Absensi
+        </button>
+      </div>
+    </div>
+
+    <div id="areaRekapAbsensi" style="display: none;">
+       <div style="background:#fff; padding:15px; border-radius:14px; margin-bottom:15px; display:flex; gap:10px; flex-wrap: wrap;">
+          <input type="month" id="filterBulanAbsen" onchange="renderRekapAbsensi()" style="flex:1; min-width: 150px; height: 54px; border-radius:10px; border:2px solid #e0e0e0; padding:0 16px; margin-bottom: 0;">
+       </div>
+       <div class="table-container" style="overflow-x: auto; background:#fff; border-radius:14px;">
+          <table id="tblRekapAbsensi" style="display: table; width: 100%;">
+            <thead>
+              <tr>
+                <th style="background: #2980b9;">Tanggal</th>
+                <th style="background: #2980b9;">Waktu</th>
+                <th style="background: #2980b9;">Nama</th>
+                <th style="background: #2980b9;">Status</th>
+                <th style="background: #2980b9;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="bodyRekapAbsensi"></tbody>
+          </table>
+       </div>
+    </div>
   </div>
 </div>
 
@@ -218,8 +306,8 @@
       <button class="btn-reset" onclick="resetFilter()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
       <button class="btn-download" onclick="downloadExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
       <button class="btn-pdf" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-	  <button class="btn-download" style="background: #f39c12;" onclick="document.getElementById('fileImport').click()">Import Excel</button>
-	<input type="file" id="fileImport" accept=".xlsx, .xls" style="display:none" onchange="prosesImportExcel(event)">
+      <button class="btn-download" style="background: #f39c12;" onclick="document.getElementById('fileImport').click()">Import Excel</button>
+      <input type="file" id="fileImport" accept=".xlsx, .xls" style="display:none" onchange="prosesImportExcel(event)">
     </div>
   </div>
   
@@ -275,57 +363,64 @@ if ('serviceWorker' in navigator) {
 // --- DATA KONSTANTA ---
 const DATA_SURAT = {
     1: ['Al-Fatihah', 'Al-Baqarah'], 
-	2: ['Al-Baqarah'], 
-	3: ['Al-Baqarah', 'Ali Imran'], 
-	4: ['Ali Imran', 'An-Nisa'], 
-	5: ['An-Nisa'], 
-	6: ['An-Nisa', 'Al-Ma\'idah'], 
-	7: ['Al-Ma\'idah', 'Al-An\'am'], 
-	8: ['Al-An\'am', 'Al-A\'raf'], 
-	9: ['Al-A\'raf', 'Al-Anfal'], 
-	10: ['Al-Anfal', 'At-Taubah'], 
-	11: ['At-Taubah', 'Yunus', 'Hud'], 
-	12: ['Hud', 'Yusuf'], 
-	13: ['Yusuf', 'Ar-Ra\'d', 'Ibrahim'], 
-	14: ['Al-Hijr', 'An-Nahl'], 
-	15: ['Al-Isra', 'Al-Kahf'], 
-	16: ['Al-Kahf', 'Maryam', 'Ta-Ha'], 
-	17: ['Al-Anbiya', 'Al-Hajj'], 
-	18: ['Al-Mu\'minun', 'An-Nur', 'Al-Furqan'], 
-	19: ['Al-Furqan', 'Ash-Shu\'ara', 'An-Naml'], 
-	20: ['An-Naml', 'Al-Qasas', 'Al-Ankabut'], 
-	21: ['Al-Ankabut', 'Ar-Rum', 'Luqman', 'As-Sajdah', 'Al Ahzab'], 
-	22: ['Al-Ahzab', 'Saba', 'Fatir', 'Ya-Sin'], 
-	23: ['Ya-Sin', 'As-Saffat', 'Sad', 'Az-Zumar'], 
-	24: ['Az-Zumar', 'Ghafir', 'Fussilat'], 
-	25: ['Fussilat', 'Ash-Shura', 'Az-Zukhruf', 'Ad-Dukhan', 'Al-Jasiyah'], 
-	26: ['Al-Ahqaf', 'Muhammad', 'Al-Fath', 'Al-Hujurat', 'Qaf', 'Az-Zariyat'], 
-	27: ['Az-Zariyat', 'At-Tur', 'An-Najm', 'Al-Qamar', 'Ar-Rahman', 'Al-Waqiah', 'Al-Hadid'], 
-	28: ['Al-Mujadalah', 'Al-Hasyr', 'Al-Mumtahanah', 'As-Saff', 'Al-Jumu\'ah', 'Al-Munafiqun', 'At-Taghabun', , 'At-Talaq', 'At-Tahrim'], 
-	29: ['Al-Mulk', 'Al-Qalam', 'Al-Haqqah', 'Al-Ma\'arij', 'Nuh', 'Al-Jinn', 'Al-Muzzammil', 'Al-Muddassir', 'Al-Qiyamah', 'Al-Insan', 'Al-Mursalat'], 
-	30: ['An-Naba\'', '\'Abasa',  'At-Takwir', 'Al-Infitar', 'Al-Mutaffifin', 'Al-Insyiqaq', 'Al-Buruj', 'At-Tariq', 'Al-A`la', 'Al-Ghasiyah', 'Al-Fajr', 'Al-Balad', 'Asy-Syams', 'Al-Lail', 'Ad-Duha', 'Ash-Sharh', 'At-Tin', 'Al-`Alaq', 'Al-Qadr', 'Al-Bayyinah', 'Az-Zalzalah', 'Al-Adiyat', 'Al-Qari\'ah', 'At-Takathur', 'Al-Asr', 'Al-Humazah', 'Al-Fil', 'Quraysh', 'Al-Ma\'un', 'Al-Kautsar', 'Al-Kafirun', 'An-Nasr', 'Al-Masad', 'Al-Ikhlas', 'Al-Falaq', 'An-Nas']
+    2: ['Al-Baqarah'], 
+    3: ['Al-Baqarah', 'Ali Imran'], 
+    4: ['Ali Imran', 'An-Nisa'], 
+    5: ['An-Nisa'], 
+    6: ['An-Nisa', 'Al-Ma\'idah'], 
+    7: ['Al-Ma\'idah', 'Al-An\'am'], 
+    8: ['Al-An\'am', 'Al-A\'raf'], 
+    9: ['Al-A\'raf', 'Al-Anfal'], 
+    10: ['Al-Anfal', 'At-Taubah'], 
+    11: ['At-Taubah', 'Yunus', 'Hud'], 
+    12: ['Hud', 'Yusuf'], 
+    13: ['Yusuf', 'Ar-Ra\'d', 'Ibrahim'], 
+    14: ['Al-Hijr', 'An-Nahl'], 
+    15: ['Al-Isra', 'Al-Kahf'], 
+    16: ['Al-Kahf', 'Maryam', 'Ta-Ha'], 
+    17: ['Al-Anbiya', 'Al-Hajj'], 
+    18: ['Al-Mu\'minun', 'An-Nur', 'Al-Furqan'], 
+    19: ['Al-Furqan', 'Ash-Shu\'ara', 'An-Naml'], 
+    20: ['An-Naml', 'Al-Qasas', 'Al-Ankabut'], 
+    21: ['Al-Ankabut', 'Ar-Rum', 'Luqman', 'As-Sajdah', 'Al Ahzab'], 
+    22: ['Al-Ahzab', 'Saba', 'Fatir', 'Ya-Sin'], 
+    23: ['Ya-Sin', 'As-Saffat', 'Sad', 'Az-Zumar'], 
+    24: ['Az-Zumar', 'Ghafir', 'Fussilat'], 
+    25: ['Fussilat', 'Ash-Shura', 'Az-Zukhruf', 'Ad-Dukhan', 'Al-Jasiyah'], 
+    26: ['Al-Ahqaf', 'Muhammad', 'Al-Fath', 'Al-Hujurat', 'Qaf', 'Az-Zariyat'], 
+    27: ['Az-Zariyat', 'At-Tur', 'An-Najm', 'Al-Qamar', 'Ar-Rahman', 'Al-Waqiah', 'Al-Hadid'], 
+    28: ['Al-Mujadalah', 'Al-Hasyr', 'Al-Mumtahanah', 'As-Saff', 'Al-Jumu\'ah', 'Al-Munafiqun', 'At-Taghabun', 'At-Talaq', 'At-Tahrim'], 
+    29: ['Al-Mulk', 'Al-Qalam', 'Al-Haqqah', 'Al-Ma\'arij', 'Nuh', 'Al-Jinn', 'Al-Muzzammil', 'Al-Muddassir', 'Al-Qiyamah', 'Al-Insan', 'Al-Mursalat'], 
+    30: ['An-Naba\'', '\'Abasa',  'At-Takwir', 'Al-Infitar', 'Al-Mutaffifin', 'Al-Insyiqaq', 'Al-Buruj', 'At-Tariq', 'Al-A`la', 'Al-Ghasiyah', 'Al-Fajr', 'Al-Balad', 'Asy-Syams', 'Al-Lail', 'Ad-Duha', 'Ash-Sharh', 'At-Tin', 'Al-`Alaq', 'Al-Qadr', 'Al-Bayyinah', 'Az-Zalzalah', 'Al-Adiyat', 'Al-Qari\'ah', 'At-Takathur', 'Al-Asr', 'Al-Humazah', 'Al-Fil', 'Quraysh', 'Al-Ma\'un', 'Al-Kautsar', 'Al-Kafirun', 'An-Nasr', 'Al-Masad', 'Al-Ikhlas', 'Al-Falaq', 'An-Nas']
 };
 
 let santriList = [], editRow = null;
 let allData = [], filteredData = [], originalRowIndices = [];
 
-// --- FUNGSI LOCAL STORAGE (Pengganti Spreadsheet) ---
+// ==========================================
+// 1. DATABASE LOKAL (Setoran & Master Santri)
+// ==========================================
 function getLocalData() {
   let d = localStorage.getItem('mutabaah_data');
   if(!d) {
-    // Inisialisasi header seperti di Spreadsheet [cite: 216]
     d = [['Tanggal','Nama','Kelompok','Juz Awal','Surat Awal','Juz Akhir','Surat Akhir','Waktu','Kategori','Dari Ayat','Sampai Ayat','Baris','Halaman','Kesalahan','Nilai']];
     localStorage.setItem('mutabaah_data', JSON.stringify(d));
     return d;
   }
   return JSON.parse(d);
 }
-
 function saveLocalData(dataArr) {
   localStorage.setItem('mutabaah_data', JSON.stringify(dataArr));
 }
 
-// Inisialisasi awal
+function getSantriData() {
+    return JSON.parse(localStorage.getItem('mutabaah_master_santri') || '[]');
+}
+function saveSantriData(data) {
+    localStorage.setItem('mutabaah_master_santri', JSON.stringify(data));
+    loadDatalistSantri(); // Auto-update dropdown
+}
+
 window.onload = () => {
   const opsi = Array.from({length:30},(_,i)=>`<option value="${i+1}">Juz ${i+1}</option>`).join('');
   document.getElementById('juz').innerHTML += opsi;
@@ -347,9 +442,15 @@ function ekstrakSantri() {
   }
 }
 
-// Event otomatis isi kelompok jika nama sudah pernah ada
+// Event otomatis isi kelompok jika nama sudah ada di master atau riwayat
 document.getElementById('nama').addEventListener('input', function() {
-  const selected = santriList.find(s => s.nama === this.value);
+  const masterSantri = getSantriData();
+  let selected = masterSantri.find(s => s.nama === this.value);
+  
+  if(!selected) {
+     selected = santriList.find(s => s.nama === this.value);
+  }
+  
   if(selected && selected.kelompok) {
     document.getElementById('kelompok').value = selected.kelompok;
   }
@@ -363,22 +464,53 @@ function updateSuratLokal(juzId, suratId) {
 document.getElementById('juz').onchange = () => updateSuratLokal('juz', 'surat');
 document.getElementById('juz2').onchange = () => updateSuratLokal('juz2', 'surat2');
 
-/* NAVIGATION */
+// ==========================================
+// 2. NAVIGASI MENU
+// ==========================================
 function bukaMenu() {
   document.getElementById('dashboardPage').style.display = 'none';
   document.getElementById('menuPage').style.display = 'block';
   loadTotalSetoran();
 }
+
 function kembaliKeDashboard() {
   ['menuPage','rekapPage','mainAppPage'].forEach(id => document.getElementById(id).style.display = 'none');
   document.getElementById('dashboardPage').style.display = 'flex';
 }
+
 function bukaInputForm() {
   document.getElementById('menuPage').style.display = 'none';
   document.getElementById('mainAppPage').style.display = 'block';
+  
+  document.getElementById('titleSetoran').style.display = 'block';
+  document.getElementById('formSetoran').style.display = 'block';
+  document.getElementById('btnSimpanSetoran').style.display = 'block';
+  document.getElementById('sectionAbsensi').style.display = 'none';
+  document.getElementById('sectionSantri').style.display = 'none';
+
   loadDatalistSantri();
   document.getElementById('tanggal').valueAsDate = new Date();
 }
+
+function navigasiKe(page) {
+    document.getElementById('menuPage').style.display = 'none';
+    document.getElementById('mainAppPage').style.display = 'block';
+    
+    document.getElementById('titleSetoran').style.display = 'none';
+    document.getElementById('formSetoran').style.display = 'none';
+    document.getElementById('btnSimpanSetoran').style.display = 'none';
+    
+    if (page === 'absensi') {
+        document.getElementById('sectionSantri').style.display = 'none';
+        document.getElementById('sectionAbsensi').style.display = 'block';
+        document.getElementById('tanggalAbsen').valueAsDate = new Date();
+    } else if (page === 'santri') {
+        document.getElementById('sectionAbsensi').style.display = 'none';
+        document.getElementById('sectionSantri').style.display = 'block';
+        renderDaftarSantri();
+    }
+}
+
 function kembaliKeMenu() {
   document.getElementById('mainAppPage').style.display = 'none';
   document.getElementById('rekapPage').style.display = 'none';
@@ -387,6 +519,7 @@ function kembaliKeMenu() {
   editRow = null;
   loadTotalSetoran();
 }
+
 function bukaRekap() {
   document.getElementById('menuPage').style.display = 'none';
   document.getElementById('rekapPage').style.display = 'block';
@@ -398,10 +531,19 @@ function loadTotalSetoran() {
   document.getElementById('totalSetoran').innerText = Math.max(0, allData.length - 1);
 }
 
+// Datalist di Form Setoran: Menggabungkan Master Data & History Setoran
 function loadDatalistSantri() {
-  ekstrakSantri();
-  document.getElementById('list-nama').innerHTML = santriList.map(s => `<option value="${s.nama}">`).join('');
-  let unikKel = [...new Set(santriList.map(s => s.kelompok))].filter(Boolean);
+  const santriMaster = getSantriData();
+  ekstrakSantri(); // history setoran
+
+  let listNama = [...santriMaster.map(s => s.nama)];
+  document.getElementById('list-nama').innerHTML = listNama.map(nama => `<option value="${nama}">`).join('');
+  
+  // Menggabungkan history kelas dan kelas di master data
+  let unikKelMaster = santriMaster.map(s => s.kelompok).filter(Boolean);
+  let unikKelHistory = santriList.map(s => s.kelompok).filter(Boolean);
+  let unikKel = [...new Set([...unikKelMaster, ...unikKelHistory])];
+  
   document.getElementById('list-kelompok').innerHTML = unikKel.map(k => `<option value="${k}">`).join('');
 }
 
@@ -410,7 +552,218 @@ function loadSantriForFilter(){
   document.getElementById('filterNama').innerHTML = '<option value="">Semua Santri</option>' + santriList.map(s => `<option value="${s.nama}">${s.nama}</option>`).join('');
 }
 
-/* HITUNG NILAI & HALAMAN */
+// ==========================================
+// 3. MASTER DATA SANTRI LOGIC
+// ==========================================
+function tambahSantri() {
+    const inputNama = document.getElementById('inputNamaSantri');
+    const inputKelompok = document.getElementById('inputKelompokSantri');
+    
+    const nama = inputNama.value.trim();
+    const kelompok = inputKelompok.value.trim();
+    
+    if(!nama) return alert('Nama santri tidak boleh kosong!');
+    
+    let santri = getSantriData();
+    if(santri.some(s => s.nama.toLowerCase() === nama.toLowerCase())) {
+        return alert('Nama santri sudah terdaftar di Master Data!');
+    }
+    
+    santri.push({ id: Date.now(), nama: nama, kelompok: kelompok });
+    santri.sort((a, b) => a.nama.localeCompare(b.nama));
+    saveSantriData(santri);
+    
+    inputNama.value = '';
+    inputKelompok.value = '';
+    renderDaftarSantri();
+    showToast('Santri berhasil ditambahkan!');
+}
+
+function renderDaftarSantri() {
+    const santri = getSantriData();
+    const tbody = document.getElementById('bodyDaftarSantri');
+    tbody.innerHTML = '';
+    
+    if(santri.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px;">Belum ada master data santri</td></tr>';
+        return;
+    }
+    
+    santri.forEach((s, index) => {
+        tbody.innerHTML += `
+            <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">${index + 1}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight:bold; text-align: left;">${s.nama}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: left;">${s.kelompok || '-'}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align:center;">
+                    <button onclick="hapusSantri(${s.id})" style="background:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function hapusSantri(id) {
+    if(!confirm('Yakin ingin menghapus santri ini dari Master Data?')) return;
+    let santri = getSantriData();
+    santri = santri.filter(s => s.id !== id);
+    saveSantriData(santri);
+    renderDaftarSantri();
+    showToast('Data Santri dihapus!');
+}
+
+// ==========================================
+// 4. KELOLA ABSENSI HALQOH 
+// ==========================================
+function switchTabAbsensi(tab) {
+    if (tab === 'input') {
+        document.getElementById('areaInputAbsensi').style.display = 'block';
+        document.getElementById('areaRekapAbsensi').style.display = 'none';
+        document.getElementById('btnTabInputAbsen').style.background = '#0a8f5a';
+        document.getElementById('btnTabRekapAbsen').style.background = '#7f8c8d';
+    } else {
+        document.getElementById('areaInputAbsensi').style.display = 'none';
+        document.getElementById('areaRekapAbsensi').style.display = 'block';
+        document.getElementById('btnTabInputAbsen').style.background = '#7f8c8d';
+        document.getElementById('btnTabRekapAbsen').style.background = '#0a8f5a';
+        
+        if(!document.getElementById('filterBulanAbsen').value) {
+            let today = new Date();
+            let month = String(today.getMonth() + 1).padStart(2, '0');
+            document.getElementById('filterBulanAbsen').value = `${today.getFullYear()}-${month}`;
+        }
+        renderRekapAbsensi();
+    }
+}
+
+function getAbsensiData() {
+    return JSON.parse(localStorage.getItem('mutabaah_absensi') || '[]');
+}
+
+function saveAbsensiData(data) {
+    localStorage.setItem('mutabaah_absensi', JSON.stringify(data));
+}
+
+function generateFormAbsen() {
+    const tanggal = document.getElementById('tanggalAbsen').value;
+    const waktu = document.getElementById('waktuAbsen').value;
+    
+    if(!tanggal || !waktu) return alert('Pilih tanggal dan waktu halqoh terlebih dahulu!');
+    
+    const santriMaster = getSantriData();
+    if(santriMaster.length === 0) {
+        return alert('Data santri kosong! Silakan tambah data di menu DATA SANTRI terlebih dahulu.');
+    }
+    
+    const absenData = getAbsensiData();
+    const existingAbsen = absenData.filter(a => a.tanggal === tanggal && a.waktu === waktu);
+    
+    const tbody = document.getElementById('bodyInputAbsen');
+    tbody.innerHTML = '';
+    
+    santriMaster.forEach((s, index) => {
+        let statusDefault = 'H'; 
+        let existing = existingAbsen.find(a => a.nama === s.nama);
+        if(existing) statusDefault = existing.status;
+        
+        tbody.innerHTML += `
+            <tr>
+                <td style="text-align:left; font-weight:600; font-size:14px; border-bottom: 1px solid #eee; padding: 10px 5px;">${s.nama}</td>
+                <td style="border-bottom: 1px solid #eee; text-align:center;"><input type="radio" name="absen_${index}" value="H" ${statusDefault === 'H' ? 'checked' : ''} style="width:20px; height:20px; accent-color:#27ae60;"></td>
+                <td style="border-bottom: 1px solid #eee; text-align:center;"><input type="radio" name="absen_${index}" value="S" ${statusDefault === 'S' ? 'checked' : ''} style="width:20px; height:20px; accent-color:#f39c12;"></td>
+                <td style="border-bottom: 1px solid #eee; text-align:center;"><input type="radio" name="absen_${index}" value="I" ${statusDefault === 'I' ? 'checked' : ''} style="width:20px; height:20px; accent-color:#2980b9;"></td>
+                <td style="border-bottom: 1px solid #eee; text-align:center;"><input type="radio" name="absen_${index}" value="A" ${statusDefault === 'A' ? 'checked' : ''} style="width:20px; height:20px; accent-color:#c0392b;"></td>
+            </tr>
+        `;
+    });
+    
+    document.getElementById('containerTabelAbsen').style.display = 'block';
+}
+
+function simpanDataAbsensi() {
+    const tanggal = document.getElementById('tanggalAbsen').value;
+    const waktu = document.getElementById('waktuAbsen').value;
+    
+    if(!tanggal || !waktu) return alert('Tanggal dan Waktu tidak valid!');
+    
+    const tbody = document.getElementById('bodyInputAbsen');
+    const rows = tbody.querySelectorAll('tr');
+    
+    let absenData = getAbsensiData();
+    absenData = absenData.filter(a => !(a.tanggal === tanggal && a.waktu === waktu));
+    
+    let jumlahDisimpan = 0;
+    rows.forEach((row, index) => {
+        const nama = row.querySelector('td').innerText;
+        const radios = row.querySelectorAll(`input[name="absen_${index}"]`);
+        let status = 'H';
+        radios.forEach(r => { if(r.checked) status = r.value; });
+        
+        absenData.push({
+            id: new Date().getTime() + index,
+            tanggal: tanggal,
+            waktu: waktu,
+            nama: nama,
+            status: status
+        });
+        jumlahDisimpan++;
+    });
+    
+    saveAbsensiData(absenData);
+    showToast(`Absensi ${jumlahDisimpan} santri berhasil disimpan!`);
+}
+
+function renderRekapAbsensi() {
+    const filterBulan = document.getElementById('filterBulanAbsen').value;
+    const absenData = getAbsensiData();
+    const tbody = document.getElementById('bodyRekapAbsensi');
+    tbody.innerHTML = '';
+    
+    let filtered = filterBulan ? absenData.filter(a => a.tanggal.startsWith(filterBulan)) : absenData;
+    filtered.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+    
+    if(filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">Tidak ada data absensi</td></tr>';
+        return;
+    }
+    
+    filtered.forEach(data => {
+        let statusBadge = '';
+        if(data.status === 'H') statusBadge = '<span style="background:#27ae60; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">Hadir</span>';
+        else if(data.status === 'S') statusBadge = '<span style="background:#f39c12; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">Sakit</span>';
+        else if(data.status === 'I') statusBadge = '<span style="background:#2980b9; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">Izin</span>';
+        else statusBadge = '<span style="background:#c0392b; color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold;">Alpa</span>';
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="padding:10px; border-bottom:1px solid #eee;">${data.tanggal}</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">${data.waktu.replace('Halqoh ', '')}</td>
+            <td style="padding:10px; border-bottom:1px solid #eee; text-align:left; font-weight:bold;">${data.nama}</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">${statusBadge}</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">
+                <button onclick="hapusAbsensi(${data.id})" style="background:#c0392b; color:#fff; border:none; border-radius:6px; padding:6px 12px; cursor:pointer;">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function hapusAbsensi(id) {
+    if(!confirm('Anda yakin ingin menghapus data absensi ini?')) return;
+    let absenData = getAbsensiData();
+    absenData = absenData.filter(a => a.id !== id);
+    saveAbsensiData(absenData);
+    renderRekapAbsensi();
+    showToast('Data absensi dihapus!');
+}
+
+/* ==========================================
+ * FUNGSI INPUT SETORAN, FILTER, EXCEL, PDF (ASLI)
+ * ========================================== */
 document.getElementById('kesalahan').oninput = () => {
   const k = parseInt(document.getElementById('kesalahan').value) || 0;
   document.getElementById('nilai').value = Math.max(0, 100 - k);
@@ -420,7 +773,6 @@ function hitungHalaman(baris) {
   return Math.round((b / 15) * 10) / 10;
 }
 
-/* SIMPAN (Offline) */
 function simpanData() {
   const data = {
     tanggal: document.getElementById('tanggal').value,
@@ -463,7 +815,6 @@ function simpanData() {
   }, 500);
 }
 
-/* FILTER & REKAP (Sama dengan aslinya, hanya tidak perlu panggil google.script) */
 function updatePeriodeInput() {
   const p = document.getElementById('filterPeriode').value;
   document.getElementById('mingguGroup').style.display = p === 'minggu' ? 'block' : 'none';
@@ -542,7 +893,6 @@ function resetFilter(){
   showToast('Filter direset');
 }
 
-/* DOWNLOAD EXCEL & PDF */
 function downloadExcel(){
   if(!filteredData.length) return alert('Tidak ada data!');
   const headers = ['Tanggal','Nama','Kelompok','Juz Awal','Surat Awal','Juz Akhir','Surat Akhir','Waktu','Kategori','Dari Ayat','Sampai Ayat','Baris','Halaman','Kesalahan','Nilai'];
@@ -621,12 +971,11 @@ function updateStats(data){
   } else { document.getElementById('statRataNilai').innerText = '0'; document.getElementById('statTotalHal').innerText = '0'; }
 }
 
-/* TABLE (Offline) */
 function loadTableWithFilter(){
   showLoading(true);
-  setTimeout(() => { // Simulasi loading agar tetap smooth UI-nya
+  setTimeout(() => { 
     let rows = [], idx = [];
-    for(let i = 1; i < allData.length; i++){ rows.push(allData[i]); idx.push(i); } // i adalah index asli di allData
+    for(let i = 1; i < allData.length; i++){ rows.push(allData[i]); idx.push(i); } 
     filteredData = rows; originalRowIndices = idx;
     renderTable(rows, idx); updateStats(rows);
     showLoading(false);
@@ -655,9 +1004,7 @@ function editDataFromRekap(index){
   const r = allData[arrIdx];
   editRow = arrIdx;
   
-  document.getElementById('rekapPage').style.display = 'none';
-  document.getElementById('mainAppPage').style.display = 'block';
-  loadDatalistSantri();
+  bukaInputForm(); 
   
   document.getElementById('tanggal').value = r[0]||'';
   document.getElementById('nama').value = r[1]||'';
@@ -717,7 +1064,6 @@ function prosesImportExcel(event) {
       const workbook = XLSX.read(data, { type: 'array' });
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
       
-      // Ubah data sheet ke JSON dengan baris pertama sebagai header
       const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
 
       if (jsonData.length === 0) {
@@ -726,47 +1072,24 @@ function prosesImportExcel(event) {
         return;
       }
 
-let jumlahBaru = 0;
+      let jumlahBaru = 0;
       let jumlahDiupdate = 0;
 
-      // Map data Excel ke array allData
       jsonData.forEach(row => {
         const tgl = row['Tanggal'] || new Date().toISOString().split('T')[0];
         const nama = row['Nama'] || '';
         const waktu = row['Waktu'] || row['Waktu Halqoh'] || '';
         const kategori = row['Kategori'] || '';
         
-        // --- TAMBAHAN LOGIKA PERHITUNGAN OTOMATIS ---
-        // 1. Ambil jumlah baris dari Excel, pastikan berupa angka
         const jumlahBaris = parseFloat(row['Baris']) || 0;
-        
-        // 2. Hitung halaman otomatis (Baris dibagi 15, dibulatkan 1 desimal)
         const hitungHalaman = Math.round((jumlahBaris / 15) * 10) / 10;
-        
-        // 3. (Opsional) Hitung nilai otomatis juga jika di Excel kosong
         const jumlahKesalahan = parseFloat(row['Kesalahan']) || 0;
         const hitungNilai = row['Nilai'] !== undefined && row['Nilai'] !== "" ? parseFloat(row['Nilai']) : Math.max(0, 100 - jumlahKesalahan);
-        // ---------------------------------------------
 
         const rowData = [
-          tgl,                                                      // [0] Tanggal
-          nama,                                                     // [1] Nama
-          row['Kelompok'] || '',                                    // [2] Kelompok
-          row['Juz Awal'] || row['Juz'] || '',                      // [3] Juz Awal
-          row['Surat Awal'] || row['Surat'] || '',                  // [4] Surat Awal
-          row['Juz Akhir'] || '',                                   // [5] Juz Akhir
-          row['Surat Akhir'] || '',                                 // [6] Surat Akhir
-          waktu,                                                    // [7] Waktu
-          kategori,                                                 // [8] Kategori
-          row['Dari Ayat'] || '',                                   // [9] Dari Ayat
-          row['Sampai Ayat'] || '',                                 // [10] Sampai Ayat
-          jumlahBaris,                                              // [11] Baris (Dari Excel)
-          hitungHalaman,                                            // [12] Halaman (Dihitung Otomatis!)
-          jumlahKesalahan,                                          // [13] Kesalahan
-          hitungNilai                                               // [14] Nilai (Dihitung Otomatis / Dari Excel)
+          tgl, nama, row['Kelompok'] || '', row['Juz Awal'] || row['Juz'] || '', row['Surat Awal'] || row['Surat'] || '', row['Juz Akhir'] || '', row['Surat Akhir'] || '', waktu, kategori, row['Dari Ayat'] || '', row['Sampai Ayat'] || '', jumlahBaris, hitungHalaman, jumlahKesalahan, hitungNilai
         ];
 
-        // MENCARI DATA YANG SAMA DI TABEL
         const existingIndex = allData.findIndex(item => 
           item[0] === tgl && item[1] === nama && item[7] === waktu && item[8] === kategori
         );
@@ -780,21 +1103,18 @@ let jumlahBaru = 0;
         }
       });
 
-      // Simpan pembaruan ke local storage
       saveLocalData(allData);
 
       showLoading(false);
       showToast(`${jumlahBaru} baru ditambahkan, ${jumlahDiupdate} diperbarui!`);
       
-      // Refresh tabel
       loadTableWithFilter();
-      loadTotalSetoran(); // Update statistik di dashboard
+      loadTotalSetoran(); 
       
     } catch (error) {
       showLoading(false);
       alert("Terjadi kesalahan saat membaca file: " + error.message);
     } finally {
-      // Reset value agar bisa import file yang sama dua kali jika diperlukan
       event.target.value = ""; 
     }
   };
@@ -803,6 +1123,5 @@ let jumlahBaru = 0;
 }
 
 </script>
-
 </body>
 </html>
